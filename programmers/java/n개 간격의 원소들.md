@@ -1,5 +1,5 @@
 - 문제
-- 
+ 
 ![image](https://github.com/user-attachments/assets/e5b353b5-6e9b-4c05-8ab7-38044e210634)
 
 - 기존 풀이
@@ -21,7 +21,7 @@ class Solution {
 }
 ```
 - 실행결과
-- 
+ 
 ![image](https://github.com/user-attachments/assets/44d8b26c-2fcb-46e2-a812-1c2b15529d2f)
 
 
