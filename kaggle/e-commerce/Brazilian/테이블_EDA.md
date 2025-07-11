@@ -9,6 +9,7 @@ SELECT * FROM olist_order_items_dataset LIMIT 10;
   - shipping_limit_date: 배송일자
   - price: 상품가격
   - freight_value: 화물가격(주문에 품목이 두 개 이상인 경우 화물가격은 품목 간 동일하게 분할된다.)
+  - 주문한 내역의 품목 데이터가 저장된 테이블이다.
 
 ### 2. order_id가 2개 이상이고, 화물 가격이 2가지 이상인 경우 -> 없음
 ``` sql
@@ -60,3 +61,13 @@ SELECT  count(*) as cnt
     - 동일 order_id가 있는 경우: 여러 개의 품목(product_id)을 구매했을 때
     - 동일한 품목을 여러개 구매한 경우에도 각각의 order_item_id가 부여되며 freight_value가 동일하게 분할된다.
     - 즉, 해당 order의 각 product 1개 마다 pk가 부여된다.
+
+### 5. olist_orders_dataset 확인
+```
+SELECT * FROM olist_orders_dataset LIMIT 10;
+```
+- 실행결과
+	- customer_id: 주문한 고객
+	- order_status: 배송상태
+  	- 배송예정일자, 배송일자 등등 주문에 대한 고객정보 및 배송정보가 저장된 테이블이다.
+- 
