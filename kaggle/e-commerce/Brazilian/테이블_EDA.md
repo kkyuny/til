@@ -32,10 +32,10 @@ LIMT 10;
 ### 3. 상품 배송 비용 확인
 ``` sql
 SELECT  order_id
-		,COUNT(order_id) AS order_id_cnt
-		,SUM(price) AS SUM_price
-        ,SUM(freight_value) as SUM_freight_value
-        ,SUM(IFNULL(price,0)) + SUM(IFNULL(freight_value,0)) AS sale_amt
+	,COUNT(order_id) AS order_id_cnt
+	,SUM(price) AS SUM_price
+	,SUM(freight_value) as SUM_freight_value
+	,SUM(IFNULL(price,0)) + SUM(IFNULL(freight_value,0)) AS sale_amt
   FROM  olist_order_items_dataset
  WHERE  order_id = '005d9a5423d47281ac463a968b3936fb'
  GROUP
@@ -49,9 +49,9 @@ SELECT  order_id
 ### 4. olist_order_items_dataset PK 확인
 ``` sql
 SELECT  count(*) as cnt
-		,COUNT(distinct CONCAT(order_id, order_item_id)) as order_id_order_item_id_distinct
-		,count(order_id) as order_count_not_distinct
-		,count(distinct order_id) as order_count
+	, COUNT(distinct CONCAT(order_id, order_item_id)) as order_id_order_item_id_distinct
+	, count(order_id) as order_count_not_distinct
+	, count(distinct order_id) as order_count
   FROM  olist_order_items_dataset;
 ```
 - 실행결과
@@ -63,11 +63,22 @@ SELECT  count(*) as cnt
     - 즉, 해당 order의 각 product 1개 마다 pk가 부여된다.
 
 ### 5. olist_orders_dataset 확인
-```
+``` sql
 SELECT * FROM olist_orders_dataset LIMIT 10;
 ```
 - 실행결과
 	- customer_id: 주문한 고객
 	- order_status: 배송상태
   	- 배송예정일자, 배송일자 등등 주문에 대한 고객정보 및 배송정보가 저장된 테이블이다.
-- 
+
+### 6. olist_orders_dataset PK
+``` sql
+SELECT count(*) as cnt
+	, count(order_id) as order_cnt_not_distinct
+	, count(distinct order_id) as order_cnt_distinct
+FROM olist_orders_dataset
+```
+- 실행결과
+  	- cnt = order_cnt_not_distinct = order_cnt_distinct 
+	- order_id에 대한 count가 모두 동일하기 때문에 해당 테이블의 pk는 order_id이다.
+  	  
