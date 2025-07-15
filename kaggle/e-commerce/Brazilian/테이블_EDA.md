@@ -106,5 +106,5 @@ SELECT count(*) cnt,
 FROM olist_order_reviews_dataset;
 ```
 - 실행결과
-	- cnt != review_cnt != review_cnt_not_distinct
-	- review_id는 PK가 아니다.  
+	- cnt(99223) != review_cnt(98409) != review_cnt_not_distinct(99223)
+	- 중복된 review_id가 존재하기 때문에 review_id는 PK가 아니다.  
