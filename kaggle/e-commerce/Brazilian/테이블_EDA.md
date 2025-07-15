@@ -81,4 +81,30 @@ FROM olist_orders_dataset
 - 실행결과
   	- cnt = order_cnt_not_distinct = order_cnt_distinct 
 	- order_id에 대한 count가 모두 동일하기 때문에 해당 테이블의 pk는 order_id이다.
-  	  
+
+### 7. product_category_name_translation 확인
+``` sql
+SELECT * FROM product_category_name_translation
+```
+- 실행결과
+	- 브라질어인 카테고리 네임을 영어로 번역한 테이블이다.
+
+### 8. olist_order_reviews_dataset
+``` sql
+SELECT * FROM olist_order_reviews_dataset LIMIT 10;
+```
+- 실행결과
+	- review_id: 리뷰 ID
+ 	- order_id: 주문 ID
+	- review_score: 리뷰 점수
+
+### 9. olist_order_reviews_dataset PK
+``` sql
+SELECT count(*) cnt,
+	count(distinct review_id) as, review_cnt
+	count(review_id) as review_cnt_not_distinct
+FROM olist_order_reviews_dataset;
+```
+- 실행결과
+	- cnt != review_cnt != review_cnt_not_distinct
+	- review_id는 PK가 아니다.  
