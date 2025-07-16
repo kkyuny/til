@@ -108,3 +108,44 @@ FROM olist_order_reviews_dataset;
 - 실행결과
 	- cnt(99223) != review_cnt(98409) != review_cnt_not_distinct(99223)
 	- 중복된 review_id가 존재하기 때문에 review_id는 PK가 아니다.  
+
+### 10. review_id가 2개 이상인 row 확인
+``` sql
+SELECT review_id
+	, count(*) as cnt
+FROM olist_order_reviews_dataset
+GROUP BY review_id
+HAVING cnt >= 2
+LIMIT 1;
+```
+- 실행결과
+	- cnt >= 2: review_id = '28642ce6250b94cc72bc85960aec6c62'
+
+### 11. cnt >= 2 데이터 확인
+``` sql
+SELECT *
+FROM olist_order_reviews_dataset
+WHERE review_id = '28642ce6250b94cc72bc85960aec6c62';
+```
+- 실행결과
+	- 해당 review_id는 2개의 order_id를 갖고 있다.
+	- order_id = 'e239d280236cdd3c40cb2c033f681d1c','bc42a955f289870d5789e6e437206300'  
+``` sql
+SELECT *
+FROM list_orders_dataset
+WHERE order_id in ('e239d280236cdd3c40cb2c033f681d1c','bc42a955f289870d5789e6e437206300');
+```
+- 실행결과
+	- 해당 order_id의 2개의 customer_id가 확인됌('e239d280236cdd3c40cb2c033f681d1c','bc42a955f289870d5789e6e437206300').
+	- customer 테이블 데이터 확인도 필요함.
+``` sql
+SELECT *
+FROM olist_customer_dataset
+WHERE customer_id in ('e239d280236cdd3c40cb2c033f681d1c','bc42a955f289870d5789e6e437206300')
+```
+- 실행결과
+	- 해당 customer_id들의 customer_unique_id는 동일함을 확인
+- 추정결론
+	- 상품 주문 시 orders_dataset 테이블에 order_id와 customer_id가 unique하게 부여된다.
+	- 해당 customer_id는 reviews_dataset 테이블에 각 order별 입력될 수 있다.
+	- 리뷰 작성 시 customers_dataset에 해당 customer_id가 입력된다(customer_unique_id는 N개의 리뷰를 작성할 수 있다.).
