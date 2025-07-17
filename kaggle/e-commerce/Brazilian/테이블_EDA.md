@@ -149,3 +149,64 @@ WHERE customer_id in ('e239d280236cdd3c40cb2c033f681d1c','bc42a955f289870d5789e6
 	- 상품 주문 시 orders_dataset 테이블에 order_id와 customer_id가 unique하게 부여된다.
 	- 해당 customer_id는 reviews_dataset 테이블에 각 order별 입력될 수 있다.
 	- 리뷰 작성 시 customers_dataset에 해당 customer_id가 입력된다(customer_unique_id는 N개의 리뷰를 작성할 수 있다.).
+
+### 12. olist_order_payments_dataset 확인
+``` sql
+SELECT * FROM olist_order_payments_dataset LIMIT 10;
+```
+- 실행결과
+	- order_id: 주문번호
+	- payment_sequential: 결제 순서(기본 값은 1이고, 분할결제 시 부여되는 번호 같음)
+	- payment_type: 결제수단
+   	- payment_installments: 아직 알 수 없음.
+
+### 13. olist_order_payments_dataset PK 확인
+``` sql
+SELECT count(*) as cnt
+	, count(order_id) as order_cnt
+	, count(distinct order_id) as order_distinct_cnt
+FROM olist_order_payments_dataset;
+```
+- 실행결과
+	- cnt(103886) == order_distinct_cnt(103886) != order_cnt(99440)
+	- order_id는 pk가 아니다.
+
+``` sql
+SELECT count(*) as cnt
+	, count(distinct CONCAT(order_id, payment_sequential)) as order_payment_distinct_cnt
+FROM olist_order_payments_dataset;
+```
+- 실행결과
+	- cnt(103886) == order_payment_distinct_cnt(103886)
+	- payments 테이블의 PK는 order_id와 payment_sequential의 복합키다.
+
+### 14. order_id가 2개 이상인 데이터 확인
+``` sql
+SELECT order_id
+	, count(order_id) as cnt
+FROM olist_order_payments_dataset
+GROUP BY order_id
+HAVING count(order_id) > 1
+LIMIT 1;
+```
+- 실행결과: order_id=5cfd514482e22bc992e7693f0e3e8df7
+
+``` sql
+SELECT *
+FROM olist_order_payments_dataset
+WHERE order_id = '5cfd514482e22bc992e7693f0e3e8df7'
+``` 
+- 실행결과
+	- payment_sequential=1: payment_type=credit_card, paymnet_installments=4, payment_value=45.17
+	- payment_sequential=2: payment_type=voucher, paymnet_installments=1, payment_value=665.41
+ 	- 결제금액 합계: 710.58
+
+### 15. payments 테이블과 order_items 테이블의 결제금액 합계 확인
+``` sql
+SELECT *
+FROM olist_order_items_dataset
+WHERE order_id = '5cfd514482e22bc992e7693f0e3e8df7'
+```
+- 실행결과
+  	- price(689.99) + freight_value(20.59) = 710.58
+  	- paymenst의 결제 금액과 order_items의 결제 금액이 같은 것을 우선 확인하였음.
