@@ -1,5 +1,4 @@
 ## 테이블 확인2
----
 ### 1. 주문연월별 주문수 확인
 ``` sql
 SELECT date_format(order_purchase_timestamp, '%Y-%m') as YM
