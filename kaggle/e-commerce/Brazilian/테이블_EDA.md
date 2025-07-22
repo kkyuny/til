@@ -210,3 +210,76 @@ WHERE order_id = '5cfd514482e22bc992e7693f0e3e8df7'
 - 실행결과
   	- price(689.99) + freight_value(20.59) = 710.58
   	- paymenst의 결제 금액과 order_items의 결제 금액이 같은 것을 우선 확인하였음.
+
+### 16. payments 테이블과 order_items 테이블의 결제금액 합계 확인2
+``` sql
+WITH PAY_TOTAL AS (
+SELECT  order_id
+		,SUM(payment_value) AS payment_value_total
+  FROM  olist_order_payments_dataset
+ GROUP
+    BY  order_id
+),
+ORDER_ITEM_TOTAL AS (
+SELECT  order_id
+		,SUM(IFNULL(price,0)) + SUM(IFNULL(freight_value,0)) AS sale_amt -- IFNULL(A, B) A값이 NULL 이면 B 값을 반환
+  FROM  olist_order_items_dataset
+ GROUP
+	BY  order_id
+)
+SELECT  *
+  FROM  PAY_TOTAL AS PT
+  LEFT
+  JOIN  ORDER_ITEM_TOTAL AS OIT
+    ON  PT.order_id = OIT.order_id
+ WHERE  ROUND(payment_value_total,0) <> ROUND(sale_amt,0)
+ LIMIT  10;
+```
+- 실행결과
+	- 10건의 데이터 모두 동일 order_id에 대해 payment_value_total != sale_amt가 같지 않았다.
+	- 하지만 payment_value_total >= sale_amt인 것으로 보아 실제 판매금액은 sale_amt인 것 같다.
+
+### 17. olist_sellers_dataset 확인
+``` sql
+SELECT * FROM olist_sellers_dataset LIMIT 10;
+```
+- 실행결과
+	- seller_id: 셀러 id
+	- seller_zip_code_prfix: 판매자 우편번호
+	- seller_city: 판매자 지역
+	- seller_state: 판매자 상태
+
+### 18. olist_sellers_dataset PK 확인
+``` sql
+SELECT count(*) as cnt
+	, count(seller_id) as seller_cnt
+	, count(distinct seller_id) as seller_distinct_cnt
+FROM olist_sellers_dataset;
+```
+- 실행결과
+	- cnt(3095) == seller_cnt(3095) == seller_distinct_cnt
+	- sellers의 테이블의 PK는 seller_id이다.
+
+### 19. olist_customers_dataset
+``` sql
+SELECT *
+FROM olist_customers_dataset LIMIT 10;
+```
+- 실행결과
+	- customer_id: 커스터머 id
+	- customer_unique_id: 커스터머 unique id
+	- customer_zip_code_prefix: 커스터머 우편주소
+	- customer_city: 커스터머 지역
+	- customer_state: 커스터머 상태
+
+### 20. olist_customers_dataset PK 확인
+``` sql
+SELECT  count(*) as cnt
+	,count(customer_id) as customer_count_not_distinct
+	,count(distinct customer_id) as customer_count
+FROM  olist_customers_dataset;
+```
+- 실행결과
+	- cnt(99441) == customer_count_not_distinct(99441) == customer_count(99441)
+	- PK는 customer_id이다.
+	- 하지만, order_reviews_dataset 테이블에서 확인했듯 순수한 customer의 수는 costomer_unique_id로 count해야한다.
