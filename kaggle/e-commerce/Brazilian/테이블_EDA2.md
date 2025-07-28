@@ -96,7 +96,8 @@ HAVING COUNT(DISTINCT product_category_name_english) > 1;
 - 실행결과
   - 2개 이상의 상품을 주문한 order_id에서 중복을 제거한 구매한 카테고리를 ,로 연결하여 출력한다.
   - product_cates: consoles_games, toys 등등
-
+  - product_cates를 통해 함께 자주 구매한 카테고리들을 확인할 수 있다.
+    
 - product_cates별 주문건수 확인
 ``` sql
 WITH ORDER_PRODUCT_INFO_LISTS_GROUP AS (
