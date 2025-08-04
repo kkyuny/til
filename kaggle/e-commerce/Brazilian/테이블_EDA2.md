@@ -119,4 +119,68 @@ SELECT  product_cates
 - order_id별 구매한 categorys를 확인한 쿼리문을 with문으로하여
 - product_cates로 그룹화를 한 뒤 중복을 제거한 order_id를 count하면 product_cates별 주문 건수를 확인할 수 있다.
 
-### 6. 168번 line~
+### 6. olist_orders_dataset 및 olist_order_items_dataset 데이터 손실 여부 확인
+``` sql
+SELECT  *
+  FROM  olist_orders_dataset AS o
+  LEFT 
+  JOIN  olist_order_items_dataset AS oi 
+    ON  o.order_id = oi.order_id
+ WHERE  oi.order_id IS NULL
+ LIMIT  10;
+```
+- 실행결과
+	- oi의 데이터가 null이 있는 데이터를 확인하였음.
+
+``` sql
+SELECT  COUNT(distinct o.order_id) as order_cnt
+	,COUNT(distinct CASE WHEN oi.order_id IS NULL THEN o.order_id) as not_match_order_cnt
+	,MAX(DISTINCT CASE WHEN oi.order_id IS NULL THEN o.order_id END) AS not_match_order_id_sample
+  FROM  olist_orders_dataset AS o
+  LEFT 
+  JOIN  olist_order_items_dataset AS oi 
+    ON  o.order_id = oi.order_id
+```
+- 실행결과
+	- order_cnt(99441), not_match_order_cnt(775), not_match_order_id_sample(ff71fa43cf5b726cd4a5763c7d819a35)
+	- 주문 데이터(775건)의 아이템 내역이 유실되었다.
+
+``` sql
+SELECT  *
+  FROM  olist_orders_dataset
+ WHERE  order_id = 'ff71fa43cf5b726cd4a5763c7d819a35';
+ 
+SELECT  *
+  FROM  olist_order_items_dataset
+ WHERE  order_id = 'ff71fa43cf5b726cd4a5763c7d819a35';
+```
+- 실행결과
+	- orders의 데이터는 있지만 order_items 데이터는 없다.
+
+### 7. 평균 배송시간이 가장 느린 카테고리 확인
+``` sql
+WITH DELIVERY_BY_PRODUCT AS (
+  SELECT 
+    p.product_id,
+    pct.product_category_name_english,
+    DATEDIFF(o.order_delivered_customer_date, o.order_purchase_timestamp) AS arrived_day
+  FROM olist_orders_dataset AS o
+  INNER JOIN olist_order_items_dataset AS oi ON o.order_id = oi.order_id
+  LEFT JOIN olist_products_dataset AS p ON oi.product_id = p.product_id
+  LEFT JOIN product_category_name_translation AS pct ON p.product_category_name = pct.product_category_name
+  GROUP BY p.product_id, pct.product_category_name_english, o.order_delivered_customer_date, o.order_purchase_timestamp
+)
+SELECT 
+  product_category_name_english,
+  AVG(arrived_day) AS avg_arrived_day
+FROM DELIVERY_BY_PRODUCT
+GROUP BY product_category_name_english
+ORDER BY avg_arrived_day DESC;  
+```
+- 실행결과
+	- order의 상품별 배송기간 계산(GROUP BY 처리 필요)
+	- 카테고리 이름별 그룹 바이 후 평균 배송시간 계산
+	- 카테고리별 배송기간의 차이가 많다.(5~20일 분포)
+
+### 8. 평균 배송시간이 가장 느린 도시 확인
+256번~
