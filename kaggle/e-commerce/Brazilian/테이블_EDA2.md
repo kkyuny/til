@@ -183,4 +183,90 @@ ORDER BY avg_arrived_day DESC;
 	- 카테고리별 배송기간의 차이가 많다.(5~20일 분포)
 
 ### 8. 평균 배송시간이 가장 느린 도시 확인
-256번~
+``` sql
+WITH DELIVERY_BY_customer_city AS (
+SELECT  c.customer_city
+		,DATEDIFF(order_delivered_customer_date, order_purchase_timestamp) as arrived_day
+  FROM  olist_orders_dataset AS o
+  INNER 
+  JOIN  olist_order_items_dataset AS oi 
+    ON  o.order_id = oi.order_id
+  LEFT 
+  JOIN  olist_customers_dataset AS c 
+    ON  c.customer_id = o.customer_id    
+)
+SELECT  customer_city
+		,AVG(arrived_day) AS AVG_arrived_day
+  FROM  DELIVERY_BY_customer_city
+ WHERE  arrived_day IS NOT NULL
+ GROUP
+    BY  1
+ ORDER
+    BY  2 DESC; 
+```
+- 실행결과
+	- 배송기간이 3~148일로 격차가 크다.
+- 도출방법
+	- 상품의 배송기간을 DATEDIFF로 구한 후 도시별로 그룹바이 후 배송기간의 평균을 집계하여 값을 구할 수 있다.
+
+### 9. 도시별 셀러당 고객 분포 수 확인
+``` sql
+WITH customer_cnt AS (
+SELECT  customer_state
+		,COUNT(DISTINCT customer_unique_id) AS customer_cnt
+  FROM  olist_customers_dataset
+ GROUP
+    BY  1
+),
+seller_cnt AS (
+SELECT  seller_state
+        ,COUNT(DISTINCT seller_id) AS seller_cnt
+  FROM  olist_sellers_dataset
+ GROUP
+    BY  1
+)
+SELECT  c.customer_state
+		,customer_cnt
+        ,seller_cnt
+        ,customer_cnt / seller_cnt AS number_customers_per_seller
+  FROM  customer_cnt AS c 
+  LEFT
+  JOIN  seller_cnt AS s
+    ON  c.customer_state = s.seller_state
+ ORDER
+    BY  4 DESC;
+```
+- 실행결과
+	- 고객 수가 적은 지역의 셀러의 수는 적고, 고객 수가 많은 지역일 수록 셀러의 수가 많다.
+	- 셀러 당 고객수가 가장 많은 지역들은 비교적 고객 수가 적은 지역이다.
+- 도출방법
+	- 지역별 고객 수 카운트 테이블과 지역별 셀러 수 카운트 테이블을 구한다.
+	- 두 테이블을 지역을 기준으로 left join 후 고객 수 카운트 / 셀러 수 카운트를 통하여 결과를 구한다.
+
+### 10. 지역별 평균 배송 시간 확인
+``` sql
+WITH DELIVERY_BY_customer_state AS (
+SELECT  c.customer_state
+		,DATEDIFF(order_delivered_customer_date, order_purchase_timestamp) as arrived_day
+  FROM  olist_orders_dataset AS o
+  INNER 
+  JOIN  olist_order_items_dataset AS oi 
+    ON  o.order_id = oi.order_id
+  LEFT 
+  JOIN  olist_customers_dataset AS c 
+    ON  c.customer_id = o.customer_id    
+)
+SELECT  customer_state
+		,AVG(arrived_day) AS AVG_arrived_day
+  FROM  DELIVERY_BY_customer_state
+ WHERE  arrived_day IS NOT NULL
+ GROUP
+    BY  1
+ ORDER
+    BY  2 DESC; 
+```
+- 실행결과
+	- 지역별 배송기간이 8~28일로 차이가 많이 난다.
+- 도출방법
+	- 지역별 배송기간 테이블을 DATEDIFF를 이용하여 구한다.
+	- 지역별 그룹바이 후 배송기간의 평균값을 집계하여 결과를 구한다. 
