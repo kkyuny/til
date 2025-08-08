@@ -10,6 +10,7 @@ FROM  olist_orders_dataset;
   - 2018-10-17 17:30:18
 
 ### 2. RFM_LISTS 테이블 생성  
+``` sql
 CREATE TABLE RFM_LISTS AS (
 SELECT  c.customer_unique_id
 		,DATEDIFF('2018-10-17', MAX(order_purchase_timestamp)) AS recency -- 2018-10-17 기준일자
@@ -25,6 +26,7 @@ SELECT  c.customer_unique_id
  GROUP
     BY  1
 );
+```
 - 실행결과
   - customers 테이블의 고객 unique id를 기준으로 그룹바이를 진행(order table과 customer_id로 조인)
   - RECENCY: 고객별 (기준날자 - 가장 최근 구매일자)의 DATEDIFF를 통해 계산
