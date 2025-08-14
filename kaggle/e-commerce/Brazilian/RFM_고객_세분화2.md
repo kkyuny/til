@@ -51,4 +51,28 @@ ORDER BY RFM_score;
 - 실행결과
   - 스코어별 배송일이 고르게 분포되어 있어 점수별 평균 배송일은 큰 관계가 없는 것 같다.
 
-### 3. 
+### 3. 리뷰 점수대별 평균 배송일 확인
+``` sql
+SELECT  review_score
+		, AVG(DATEDIFF(order_delivered_customer_date, order_purchase_timestamp)) as arrived_day
+  FROM  olist_order_reviews_dataset AS r
+  LEFT
+  JOIN  olist_orders_dataset AS o
+    ON  r.order_id = o.order_id
+  LEFT
+  JOIN  olist_customers_dataset AS c
+    ON  o.customer_id = c.customer_id
+ GROUP
+    BY  review_score
+ ORDER
+    BY  review_score;
+```
+- 실행결과
+	- 리뷰 점수가 높을 수록 평균 배송시간이 줄어든다.
+
+## RFM 고객 세분화 분석
+### 1. RFM 점수대별 분포가 종모양으로 정규분포를 따른다.
+### 2. RFM 점수와 평균 리뷰 점수는 큰 관계가 없다.
+### 3. RFM 점수와 평균 배송일은 큰 관계가 없다.
+### 4. 평균 리뷰 점수가 높을 수록, 평균 배송일이 낮아지는 경향이 있다.
+### 결론: RFM 점수는 고객 충성도 지표지만 리뷰 점수,배송일과는 상관성이 낮으므로 RFM이 높은 고객에 대해 리뷰,배송 지표를 개선하는 방향이 필요함.
