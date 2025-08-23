@@ -76,3 +76,32 @@ SELECT  review_score
 ### 3. RFM 점수와 평균 배송일은 큰 관계가 없다.
 ### 4. 평균 리뷰 점수가 높을 수록, 평균 배송일이 낮아지는 경향이 있다.
 ### 결론: RFM 점수는 고객 충성도 지표지만 리뷰 점수,배송일과는 상관성이 낮으므로 RFM이 높은 고객에 대해 리뷰,배송 지표를 개선하는 방향이 필요함.
+
+### 4. 카테고리별 평균 배송일
+``` sql
+WITH DELIVERY_BY_product_category_name AS (
+SELECT  o.order_id
+		,pct.product_category_name_english
+		,DATEDIFF(order_delivered_customer_date, order_purchase_timestamp) as arrived_day
+  FROM  olist_orders_dataset AS o
+  INNER 
+  JOIN  olist_order_items_dataset AS oi 
+    ON  o.order_id = oi.order_id
+  LEFT 
+  JOIN  olist_products_dataset AS p 
+    ON  oi.product_id = p.product_id
+  LEFT 
+  JOIN  product_category_name_translation AS pct 
+    ON  p.product_category_name = pct.product_category_name
+)
+SELECT  product_category_name_english
+		,AVG(arrived_day) AS AVG_arrived_day
+  FROM  DELIVERY_BY_product_category_name
+ GROUP
+    BY  1
+ ORDER
+    BY  2 ASC;
+```
+- 주문정보에서 배송일을 구한 후 해당 주문의 상품에 대한 카테고리명을 구한 후 카테고리명으로 group by하여 배송일의 평균을 집계하여 구한다.
+- 실행결과
+	- 카테고리별 배송일은 5~20일 정도의 분포로 나타난다.
