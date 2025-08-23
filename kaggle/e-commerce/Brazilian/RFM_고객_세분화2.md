@@ -82,7 +82,7 @@ SELECT  review_score
 WITH DELIVERY_BY_product_category_name AS (
 SELECT  o.order_id
 		,pct.product_category_name_english
-		,DATEDIFF(order_delivered_customer_date, order_purchase_timestamp) as arrived_day
+		,DATEDIFF(o.order_delivered_customer_date, o.order_purchase_timestamp) as arrived_day
   FROM  olist_orders_dataset AS o
   INNER 
   JOIN  olist_order_items_dataset AS oi 
@@ -105,3 +105,6 @@ SELECT  product_category_name_english
 - 주문정보에서 배송일을 구한 후 해당 주문의 상품에 대한 카테고리명을 구한 후 카테고리명으로 group by하여 배송일의 평균을 집계하여 구한다.
 - 실행결과
 	- 카테고리별 배송일은 5~20일 정도의 분포로 나타난다.
+	- 사실 정확한 계산은 배송일이 orders 테이블이 아니라 order_items 테이블에 있는 것이 정확하다.
+	- 한 주문에서 여러개의 카테고리 상품을 구매할 수 있기 때문이다.
+ 	- 따라서 상품별 배송일자가 있어야지 정확한 카테고리별 배송일자를 구할 수 있다.
