@@ -1,0 +1,1 @@
+![img.png](../resources/chain_of_responsibility.png)
