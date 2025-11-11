@@ -15,6 +15,8 @@ public class MainEntry {
         System.out.println(line1.draw());
 
         Line lineCopy = (Line)line1.copy();
+
+
         Point pt3 = new Point();
         pt3.setX(100).setY(100);
 
