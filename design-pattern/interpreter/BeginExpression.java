@@ -5,7 +5,7 @@ public class BeginExpression implements Expression{
 
     @Override
     public boolean parse(Context context) {
-        if(chechValidKeyword(context.getCurrentKeyword())){
+        if(checkValidKeyword(context.getCurrentKeyword())){
             context.readNextKeyWord();
             expression = new CommandListExpression();
             return expression.parse(context);
@@ -14,7 +14,7 @@ public class BeginExpression implements Expression{
         }
     }
 
-    private boolean chechValidKeyword(String keyword) {
+    private boolean checkValidKeyword(String keyword) {
         return keyword.equals("BEGIN");
     }
 
