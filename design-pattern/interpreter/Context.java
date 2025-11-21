@@ -3,7 +3,7 @@ package interpreter;
 import java.util.StringTokenizer;
 
 public class Context {
-    private StringTokenizer tokenizer;
+    private final StringTokenizer tokenizer;
     private String currentKeyword;
 
     public Context(String script) {
